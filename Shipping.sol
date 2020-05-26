@@ -30,7 +30,31 @@ contract Shipping {
         string suphone ;
         string surole ;
     }
+    struct shipperbank{
+        address sbad ;
+        string sbname ;
+        string sbbranch ; 
+        string sbifsc ;
+        string sbinc ;
+        string sbaddress ;
+        
+    }
     
+    struct consigneeuser{
+        address cuad ;
+        string cuname ;
+        string cuphone ;
+        string curole ;
+    }
+    struct consigneebank{
+        address cbad ;
+        string cbname ;
+        string cbbranch ; 
+        string cbifsc ;
+        string cbinc ;
+        string cbaddress ;
+        
+    }
     
 /////////////////// MAPPING ////////////////////////
     
@@ -40,6 +64,11 @@ contract Shipping {
     mapping (address => bool) public maersku ;
     mapping (address => bool) public shipperadminu ;
     mapping (address => bool) public consigneeadminu ;
+    mapping (address => shipperuser) sumapping ;
+    mapping (address => bool) shipperuseru ;
+    mapping (address => shipperbank) sbmapping ;
+    mapping (address => consigneeuser) cumapping ;
+    mapping (address => consigneebank) cbmapping ;
     
 /////////////////// MODIFIERS////////////////////////
 
@@ -92,7 +121,7 @@ contract Shipping {
             shipperadminu[_shipperadmin] = false ;
         }
         
-        return "Shipper Admin is Updated" ;
+        return "Shipper Admin is Created" ;
         
         
     }
@@ -108,19 +137,72 @@ contract Shipping {
             consigneeadminu[_consigneeadmin] = false ;
         }
         
-        return "Consignee Admin is Updated" ;
+        return "Consignee Admin is Created" ;
     }
     
-    /*function AddShipperUser(address _suad, string _suname, string _suphone, string _surole) public returns (string){
+    function AddShipperUser(address _suad, string _suname, string _suphone, string _surole) public returns (string){
         
         require(shipperadminu[msg.sender]) ;
         
+        sumapping[_suad].suad = _suad ;
+        sumapping[_suad].suname = _suname ;
+        sumapping[_suad].suphone = _suphone ;
+        sumapping[_suad].surole = _surole ;
+        
+        return "Shipper User is Created" ;
+        
         
     }
     
+    function AddShipperBank(address _sbad, string _sbname, string _sbbranch, string _sbifsc, string _sbinc, string _sbaddress ) public returns (string){
+        
+        require(shipperadminu[msg.sender]) ;
+        
+        sbmapping[_sbad].sbad = _sbad ;
+        sbmapping[_sbad].sbname = _sbname ;
+        sbmapping[_sbad].sbbranch = _sbbranch ;
+        sbmapping[_sbad].sbifsc = _sbifsc ;
+        sbmapping[_sbad].sbinc = _sbinc ;
+        sbmapping[_sbad].sbaddress = _sbaddress ;
+        
+        return "Shipper Bank is Added" ;
     
+    }
     
+    function AddConsigneeUser(address _cuad, string _cuname, string _cuphone, string _curole) public returns (string){
+        
+        require(consigneeadminu[msg.sender]) ;
+        
+        cumapping[_cuad].cuad = _cuad ;
+        cumapping[_cuad].cuname = _cuname ;
+        cumapping[_cuad].cuphone = _cuphone ;
+        cumapping[_cuad].curole = _curole ;
+        
+        return "Consignee User is Created" ;
+        
+        
+    }
     
+    function AddConsigneeBank(address _cbad, string _cbname, string _cbbranch, string _cbifsc, string _cbinc, string _cbaddress ) public returns (string){
+        
+        require(consigneeadminu[msg.sender]) ;
+        
+        cbmapping[_cbad].cbad = _cbad ;
+        cbmapping[_cbad].cbname = _cbname ;
+        cbmapping[_cbad].cbbranch = _cbbranch ;
+        cbmapping[_cbad].cbifsc = _cbifsc ;
+        cbmapping[_cbad].cbinc = _cbinc ;
+        cbmapping[_cbad].cbaddress = _cbaddress ;
+        
+        return "Consignee Bank is Added" ;
+    
+    }
+    
+    /*
+    function ApproveFreightTerms() public {
+        
+        require(shipperuser.suad = msg.sender) ;
+    }
 
     
     
@@ -178,8 +260,8 @@ contract Shipping {
         containermapping[_token].consigneetime = now ;
         containermapping[_token].orderstatus = 5 ;
 
-    } */
-
+    }
+*/
 
 
 
