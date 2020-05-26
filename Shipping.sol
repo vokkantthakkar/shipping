@@ -67,8 +67,11 @@ contract Shipping {
     mapping (address => shipperuser) sumapping ;
     mapping (address => bool) shipperuseru ;
     mapping (address => shipperbank) sbmapping ;
+    mapping (address => bool) shipperbanku ;
     mapping (address => consigneeuser) cumapping ;
+    mapping (address => bool) consigneeuseru ;
     mapping (address => consigneebank) cbmapping ;
+    mapping (address => bool) consigneebanku ;
     
 /////////////////// MODIFIERS////////////////////////
 
@@ -149,8 +152,14 @@ contract Shipping {
         sumapping[_suad].suphone = _suphone ;
         sumapping[_suad].surole = _surole ;
         
-        return "Shipper User is Created" ;
+        if(!shipperuseru[_suad]){
+            shipperuseru[_suad] = true ;
+        }
+        else{
+            shipperuseru[_suad] = false ;
+        }
         
+        return "Shipper User is Created" ;
         
     }
     
@@ -166,6 +175,15 @@ contract Shipping {
         sbmapping[_sbad].sbaddress = _sbaddress ;
         
         return "Shipper Bank is Added" ;
+        
+        if(!shipperbanku[_sbad]){
+            shipperbanku[_sbad] = true ;
+        }
+        else{
+            shipperbanku[_sbad] = false ;
+        }
+        
+         return "Shipper Bank is Added" ;
     
     }
     
@@ -177,6 +195,13 @@ contract Shipping {
         cumapping[_cuad].cuname = _cuname ;
         cumapping[_cuad].cuphone = _cuphone ;
         cumapping[_cuad].curole = _curole ;
+        
+        if(!consigneeuseru[_cuad]){
+            consigneeuseru[_cuad] = true ;
+        }
+        else{
+            consigneeuseru[_cuad] = false ;
+        }
         
         return "Consignee User is Created" ;
         
@@ -194,19 +219,30 @@ contract Shipping {
         cbmapping[_cbad].cbinc = _cbinc ;
         cbmapping[_cbad].cbaddress = _cbaddress ;
         
+        if(!consigneebanku[_cbad]){
+            consigneebanku[_cbad] = true ;
+        }
+        else{
+            consigneebanku[_cbad] = false ;
+        }
+        
         return "Consignee Bank is Added" ;
     
     }
     
-    /*
-    function ApproveFreightTerms() public {
+    
+    function ApproveFreightTerms() public returns (string) {
         
-        require(shipperuser.suad = msg.sender) ;
+        require(shipperuseru[msg.sender]) ;
+        
+        
+        
+        
     }
 
     
     
-    
+    /*
     function CancelContainer(address _token) public returns (string){
         require(containermapping[_token].istoken);
         require(containermapping[_token].maersk == msg.sender);
