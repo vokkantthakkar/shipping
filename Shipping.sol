@@ -4,6 +4,8 @@ contract Shipping {
 
 ////////////////// DECLARATIONS ////////////////////    
     address admin ;
+    address shipperadmin ;
+    address consigneeadmin ;
     
     struct container{
         bool istoken ;
@@ -13,23 +15,31 @@ contract Shipping {
         address maersk ;
         uint creationtime ;
         
-        address customerbank ;
-        uint cubanktime ;
-        
-        address shipper ;
-        uint shippertime ;
-        
-        address consigneebank ;
-        uint ceebanktime ;
-    
-        address consignee ;
-        uint consigneetime ;
     }
+    
+    struct branch {
+        address branchad ;
+        string branchname ;
+        uint scvcode ;
+        uint govtrefno ;
+    }
+    
+    struct shipperuser{
+        address suad ;
+        string suname ;
+        string suphone ;
+        string surole ;
+    }
+    
     
 /////////////////// MAPPING ////////////////////////
     
-    mapping (address => container) public  containermapping ;
-    mapping (address => bool) public carriers ;
+    //mapping (address => container) public  containermapping ;
+    mapping (address => branch) public branchmapping ;
+   // mapping (address => bool) public carriers ;
+    mapping (address => bool) public maersku ;
+    mapping (address => bool) public shipperadminu ;
+    mapping (address => bool) public consigneeadminu ;
     
 /////////////////// MODIFIERS////////////////////////
 
@@ -46,31 +56,73 @@ contract Shipping {
 
 ////////////////// FUNCTIONS ////////////////////////
 
-    function CreateContainer(uint _svcno, string _itemname) public returns (address){
-        address token = address(sha256(msg.sender,now)) ;
-        
-        containermapping[token].istoken =true ;
-        containermapping[token].svcno = _svcno ;
-        containermapping[token].itemname = _itemname ;
-        containermapping[token].orderstatus = 1 ;
-        containermapping[token].maersk = msg.sender ;
-        containermapping[token].creationtime = now ;
-        
-        return token ;
-        
-    }
-    
-    
-    function ManageCarriers(address _carrierAddress) onlyAdmin public returns (string){
-        if(!carriers[_carrierAddress]){
-            carriers[_carrierAddress] = true ;
+
+
+    function AddMaersk(address _maersk) onlyAdmin public returns (string){
+        if(!maersku[_maersk]){
+            maersku[_maersk] = true ;
         }
         else{
-            carriers[_carrierAddress] = false ;
+            maersku[_maersk] = false ;
         }
         
-        return "Carrier status is updated" ;
+        return "Maersk Operational User is Updated" ;
     }
+
+    function AddBranch(uint _scvcode, string _branchname, uint _govtrefno, address _branchad) public returns (address){
+        
+        require(maersku[msg.sender]) ;
+        
+        branchmapping[_branchad].branchad = _branchad ;
+        branchmapping[_branchad].scvcode = _scvcode ;
+        branchmapping[_branchad].branchname = _branchname ;
+        branchmapping[_branchad].govtrefno = _govtrefno ;
+        
+        
+    }
+    
+    function AddShipperAdmin(address _shipperadmin) public returns (string){
+        
+        require(maersku[msg.sender]) ;
+        
+        if(!shipperadminu[_shipperadmin]){
+            shipperadminu[_shipperadmin] = true ;
+        }
+        else{
+            shipperadminu[_shipperadmin] = false ;
+        }
+        
+        return "Shipper Admin is Updated" ;
+        
+        
+    }
+    
+    function AddConsigneeAdmin(address _consigneeadmin) public returns (string){
+        
+        require(maersku[msg.sender]) ;
+        
+        if(!consigneeadminu[_consigneeadmin]){
+            consigneeadminu[_consigneeadmin] = true ;
+        }
+        else{
+            consigneeadminu[_consigneeadmin] = false ;
+        }
+        
+        return "Consignee Admin is Updated" ;
+    }
+    
+    /*function AddShipperUser(address _suad, string _suname, string _suphone, string _surole) public returns (string){
+        
+        require(shipperadminu[msg.sender]) ;
+        
+        
+    }
+    
+    
+    
+    
+
+    
     
     
     function CancelContainer(address _token) public returns (string){
@@ -82,7 +134,7 @@ contract Shipping {
         return "Your order has been cancelled" ;
         
     }
-    
+
     
     function CustomerBankTransfer(address _token){
         require(containermapping[_token].istoken);
@@ -126,7 +178,7 @@ contract Shipping {
         containermapping[_token].consigneetime = now ;
         containermapping[_token].orderstatus = 5 ;
 
-    }
+    } */
 
 
 
