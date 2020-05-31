@@ -7,15 +7,6 @@ contract Shipping {
     address shipperadmin ;
     address consigneeadmin ;
     
-    struct container{
-        bool istoken ;
-        uint svcno ;
-        string itemname ;
-        uint orderstatus ; // 1 = created   2 = in customerbank 3 = in shipping   4 = in consigneebank 5 = with consignee 6 = cancelled
-        address maersk ;
-        uint creationtime ;
-        
-    }
     
     struct branch {
         address branchad ;
@@ -56,11 +47,22 @@ contract Shipping {
         
     }
     
+    struct freightterms{
+        
+        uint identifier ; 
+        string paycomponents ;
+        string terms ;
+        string orignalpaymentby ;
+        address consigneeuserr ;
+        address shipperuserr ;
+    
+        
+        
+    }
+    
 /////////////////// MAPPING ////////////////////////
     
-    //mapping (address => container) public  containermapping ;
     mapping (address => branch) public branchmapping ;
-   // mapping (address => bool) public carriers ;
     mapping (address => bool) public maersku ;
     mapping (address => bool) public shipperadminu ;
     mapping (address => bool) public consigneeadminu ;
@@ -72,6 +74,9 @@ contract Shipping {
     mapping (address => bool) consigneeuseru ;
     mapping (address => consigneebank) cbmapping ;
     mapping (address => bool) consigneebanku ;
+    mapping (uint => freightterms) freighttermmapping ;
+    mapping (address => mapping(uint => bool)) private freighttermtransfer ;
+    
     
 /////////////////// MODIFIERS////////////////////////
 
@@ -231,18 +236,70 @@ contract Shipping {
     }
     
     
-    function ApproveFreightTerms() public returns (string) {
+    function CreateFreightTerms(uint _identifier , string _paycomponents , string _terms , string _orignalpaymentby) public returns (string) {
         
         require(shipperuseru[msg.sender]) ;
         
+        freighttermmapping[_identifier].identifier = _identifier ;
+        freighttermmapping[_identifier].paycomponents = _paycomponents ;
+        freighttermmapping[_identifier].terms = _terms ;
+        freighttermmapping[_identifier].orignalpaymentby = _orignalpaymentby ;
         
+        return 'Freight Terms Created' ;
         
         
     }
+    
+    function TransferFreightTerms(address _toconsigneeu , uint _identifier) public returns (string) {
+        
+        require(freighttermtransfer[msg.sender][_identifier]) ;
+        
+        freighttermmapping[_identifier].shipperuserr = msg.sender ;
+        
+        freighttermtransfer[msg.sender][_identifier] = false ;
+        freighttermtransfer[_toconsigneeu][_identifier] = true ;
+        
+    
+        return 'Freight Terms approved and Transferred to Consignee User' ;
+    }
+    
+    function ApproveFreightTerms(address _toshipper , uint _identifier) public returns (string) {
+        
+        require(freighttermtransfer[msg.sender][_identifier]) ;
+        
+        freighttermmapping[_identifier].consigneeuserr = msg.sender ;
+         
+        freighttermtransfer[msg.sender][_identifier] = false ;
+        freighttermtransfer[_toshipper][_identifier] = true ;
+        
+        return 'Payment Terms accepted by Consignee' ;
+         
+    }
+    
+    function ApprovePaymentTerms(uint _identifier) public returns (string) {
+        
+        require(freighttermtransfer[msg.sender][_identifier]) ;
+        
+    }
+        
+    
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    
 
     
-    
     /*
+    
     function CancelContainer(address _token) public returns (string){
         require(containermapping[_token].istoken);
         require(containermapping[_token].maersk == msg.sender);
