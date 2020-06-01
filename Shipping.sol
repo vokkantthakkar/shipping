@@ -55,9 +55,17 @@ contract Shipping {
         string orignalpaymentby ;
         address consigneeuserr ;
         address shipperuserr ;
+    }
     
-        
-        
+    struct container {
+        uint identifierr ;
+        string shipment ;
+        address token ;
+        address maerskuu ;
+        address shipperuserrr ;
+        address consigneeuserrr ;
+        address shipperbankk ;
+        address consigneebankk ;
     }
     
 /////////////////// MAPPING ////////////////////////
@@ -76,6 +84,9 @@ contract Shipping {
     mapping (address => bool) consigneebanku ;
     mapping (uint => freightterms) freighttermmapping ;
     mapping (address => mapping(uint => bool)) private freighttermtransfer ;
+    mapping (uint => container) containermapping ;
+    mapping (address => mapping(uint => bool)) private containertransfer ;
+    
     
     
 /////////////////// MODIFIERS////////////////////////
@@ -235,7 +246,6 @@ contract Shipping {
     
     }
     
-    
     function CreateFreightTerms(uint _identifier , string _paycomponents , string _terms , string _orignalpaymentby) public returns (string) {
         
         require(shipperuseru[msg.sender]) ;
@@ -244,6 +254,7 @@ contract Shipping {
         freighttermmapping[_identifier].paycomponents = _paycomponents ;
         freighttermmapping[_identifier].terms = _terms ;
         freighttermmapping[_identifier].orignalpaymentby = _orignalpaymentby ;
+        freighttermtransfer[msg.sender][_identifier] = true ;
         
         return 'Freight Terms Created' ;
         
@@ -276,26 +287,68 @@ contract Shipping {
          
     }
     
-    function ApprovePaymentTerms(uint _identifier) public returns (string) {
+    function ApprovePaymentTerms(uint _identifier) public {
         
         require(freighttermtransfer[msg.sender][_identifier]) ;
+        
+    }
+    
+    function CreateContainer(address _toshipperuser , uint _identifierr , string _shipment) public {
+        
+        require(shipperuseru[_toshipperuser]) ;
+        require(maersku[msg.sender]) ;
+        
+        address token = address(sha256(msg.sender,_identifierr)) ;
+        
+        containermapping[_identifierr].identifierr = _identifierr ;
+        containermapping[_identifierr].shipment = _shipment ;
+        containermapping[_identifierr].maerskuu = msg.sender ;
+        containermapping[_identifierr].token = token ;
+        
+        containertransfer[_toshipperuser][_identifierr] = true ;
+        
+    }
+    
+    function TransferContainer1(address _toshipperbank , uint _identifierr) {
+        
+        require(shipperbanku[_toshipperbank]) ;
+        require(containertransfer[msg.sender][_identifierr]) ;
+        
+        containermapping[_identifierr].shipperuserrr = msg.sender ;
+        
+        containertransfer[msg.sender][_identifierr] = false ;
+        containertransfer[_toshipperbank][_identifierr] = true ;
+        
+    }
+    
+    function TransferContainer2(address _toconsigneebank , uint _identifierr) {
+        
+        require(consigneebanku[_toconsigneebank]) ;
+        require(containertransfer[msg.sender][_identifierr]) ;
+        
+        containermapping[_identifierr].shipperbankk = msg.sender ;
+        
+        containertransfer[msg.sender][_identifierr] = false ;
+        containertransfer[_toconsigneebank][_identifierr] = true ;
+        
+    }
+    
+    function TransferContainer3(address _toconsigneeuser , uint _identifierr) {
+        
+        require(consigneeuseru[_toconsigneeuser]) ;
+        require(containertransfer[msg.sender][_identifierr]) ;
+        
+        containermapping[_identifierr].consigneebankk = msg.sender ;
+        
+        containertransfer[msg.sender][_identifierr] = false ;
+        containertransfer[_toconsigneeuser][_identifierr] = true ;
         
     }
         
     
     
         
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-    
+
 
     
     /*
@@ -355,7 +408,20 @@ contract Shipping {
 
     }
 */
+  
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    
 
+    
+    
 
 
 
