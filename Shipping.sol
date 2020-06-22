@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24 ;
+pragma solidity ^0.5.16 ;
 
 contract Shipping {
 
@@ -121,7 +121,7 @@ contract Shipping {
     
 /////////////////// MODIFIERS////////////////////////
 
-    constructor(){
+    constructor() public {
         admin = msg.sender ;
     }
     modifier onlyAdmin() {
@@ -136,7 +136,7 @@ contract Shipping {
 
 
 
-    function AddMaersk(address _maersk, string _companyname,  string _addressofcompany ,string _country, uint _code ,uint _officeline) onlyAdmin public returns (string){
+    function AddMaersk(address _maersk, string memory _companyname,  string memory  _addressofcompany ,string memory _country, uint _code ,uint _officeline) onlyAdmin public returns (string memory){
         
         maerskopmapping[_maersk].maersk = _maersk ;
         maerskopmapping[_maersk].companyname = _companyname ;
@@ -157,7 +157,7 @@ contract Shipping {
         return "Maersk Operational User is Updated" ;
     }
 
-    function AddBranch(uint _scvcode, string _branchname, uint _govtrefno, address _branchad) public returns (address){
+    function AddBranch(uint _scvcode, string memory _branchname, uint _govtrefno, address _branchad) public returns (address){
         
         require(maersku[msg.sender]) ;
         
@@ -174,7 +174,7 @@ contract Shipping {
         }
     }
     
-    function AddShipperAdmin(address _shipperadmin) public returns (string){
+    function AddShipperAdmin(address _shipperadmin) public returns (string memory ){
         
         require(branchu[msg.sender]) ;
         
@@ -190,7 +190,7 @@ contract Shipping {
         
     }
     
-    function AddConsigneeAdmin(address _consigneeadmin) public returns (string){
+    function AddConsigneeAdmin(address _consigneeadmin) public returns (string memory ){
         
         require(branchu[msg.sender]) ;
         
@@ -204,7 +204,7 @@ contract Shipping {
         return "Consignee Admin is Created" ;
     }
     
-    function AddShipperUser(address _suad, string _suname, string _suphone, string _surole) public returns (string){
+    function AddShipperUser(address _suad, string memory _suname, string memory _suphone, string memory _surole) public returns (string memory ){
         
         require(shipperadminu[msg.sender]) ;
         
@@ -224,7 +224,7 @@ contract Shipping {
         
     }
     
-    function AddShipperBank(address _sbad, string _sbname, string _sbbranch, string _sbifsc, string _sbinc, string _sbaddress ) public returns (string){
+    function AddShipperBank(address _sbad, string memory _sbname, string memory _sbbranch, string memory  _sbifsc, string memory _sbinc, string memory _sbaddress ) public returns ( string memory ){
         
         require(shipperadminu[msg.sender]) ;
         
@@ -248,7 +248,7 @@ contract Shipping {
     
     }
     
-    function AddConsigneeUser(address _cuad, string _cuname, string _cuphone, string _curole) public returns (string){
+    function AddConsigneeUser(address _cuad, string memory _cuname, string memory _cuphone, string memory _curole) public returns (string memory ){
         
         require(consigneeadminu[msg.sender]) ;
         
@@ -269,7 +269,7 @@ contract Shipping {
         
     }
     
-    function AddConsigneeBank(address _cbad, string _cbname, string _cbbranch, string _cbifsc, string _cbinc, string _cbaddress ) public returns (string){
+    function AddConsigneeBank(address _cbad, string memory _cbname, string memory _cbbranch, string memory _cbifsc, string memory _cbinc, string memory _cbaddress ) public returns (string memory ){
         
         require(consigneeadminu[msg.sender]) ;
         
@@ -291,7 +291,7 @@ contract Shipping {
     
     }
     
-    function CreateFreightTerms(address _ShipperUser, address _ConsigneeUser, address _ShipperBank, address _ConsigneeBank ,uint _identifier , string _paycomponents , string _terms , string _orignalpaymentby) public returns (string) {
+    function CreateFreightTerms(address _ShipperUser, address _ConsigneeUser, address _ShipperBank, address _ConsigneeBank ,uint _identifier , string memory _paycomponents , string memory _terms , string memory _orignalpaymentby) public returns (string memory) {
         
         require(maersku[msg.sender]) ;
         
@@ -311,7 +311,7 @@ contract Shipping {
     }
 
     
-    function TransferFreightTerms(uint _identifier) public returns (string) {
+    function TransferFreightTerms(uint _identifier) public returns (string memory ) {
         
         require(freighttermtransfer[msg.sender][_identifier]) ;
         
@@ -325,7 +325,7 @@ contract Shipping {
         return 'Freight Terms approved and Transferred to Consignee User' ;
     }
     
-    function ApproveFreightTerms( uint _identifier) public returns (string) {
+    function ApproveFreightTerms( uint _identifier) public returns (string memory) {
         
         require(freighttermtransfer[msg.sender][_identifier]) ;
         
@@ -345,12 +345,12 @@ contract Shipping {
         
     }
     
-    function CreateContainer(address _toshipperuser , uint _identifierr , string _shipment) public {
+    function CreateContainer(address _toshipperuser , uint _identifierr , string memory _shipment) public {
         
         require(shipperuseru[_toshipperuser]) ;
         require(maersku[msg.sender]) ;
         
-        address token = address(sha256(msg.sender,_identifierr)) ;
+        address token = address(sha256(msg.sender)) ;
         
         containermapping[_identifierr].identifierr = _identifierr ;
         containermapping[_identifierr].shipment = _shipment ;
@@ -361,7 +361,7 @@ contract Shipping {
         
     }
     
-    function TransferContainer1(address _toshipperbank , uint _identifierr) {
+    function TransferContainer1(address _toshipperbank , uint _identifierr) public {
         
         
         require(containertransfer[msg.sender][_identifierr]) ;
@@ -373,7 +373,7 @@ contract Shipping {
         
     }
     
-    function TransferContainer2(address _toconsigneebank , uint _identifierr) {
+    function TransferContainer2(address _toconsigneebank , uint _identifierr) public {
         
         require(consigneebanku[_toconsigneebank]) ;
         require(containertransfer[msg.sender][_identifierr]) ;
@@ -385,7 +385,7 @@ contract Shipping {
         
     }
     
-    function TransferContainer3to1(address _toconsigneeuser , uint _identifierr) {
+    function TransferContainer3to1(address _toconsigneeuser , uint _identifierr) public {
         
         require(consigneeuseru[_toconsigneeuser]) ;
         require(containertransfer[msg.sender][_identifierr]) ;
@@ -398,7 +398,7 @@ contract Shipping {
         
     }
     
-    function TransferContainer3to2(address _toconsigneeuser1,address _toconsigneeuser2 , uint _identifierr) {
+    function TransferContainer3to2(address _toconsigneeuser1,address _toconsigneeuser2 , uint _identifierr) public {
         
         require(consigneeuseru[_toconsigneeuser1]) ;
         require(consigneeuseru[_toconsigneeuser2]) ;    
@@ -414,7 +414,7 @@ contract Shipping {
         containertransfertoc[_toconsigneeuser2][_identifierr] = true ;
     }
         
-    function finish(uint _identifierr) {
+    function finish(uint _identifierr) private {
         
     }
     
