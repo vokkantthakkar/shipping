@@ -7,6 +7,16 @@ contract Shipping {
     address shipperadmin ;
     address consigneeadmin ;
     
+    struct maerskop {
+        address maersk ;
+        string companyname ;
+        string addressofcompany ;
+        string country ;
+        uint code ;
+        uint officeline ;
+    
+    }
+    
     
     struct branch {
         address branchad ;
@@ -33,9 +43,10 @@ contract Shipping {
     
     struct consigneeuser{
         address cuad ;
-        string cuname ;
+        string cuname;
         string cuphone ;
         string curole ;
+        
     }
     struct consigneebank{
         address cbad ;
@@ -55,38 +66,57 @@ contract Shipping {
         string orignalpaymentby ;
         address consigneeuserr ;
         address shipperuserr ;
-    }
-    
-    struct container {
-        uint identifierr ;
-        string shipment ;
-        address token ;
-        address maerskuu ;
-        address shipperuserrr ;
-        address consigneeuserrr ;
         address shipperbankk ;
         address consigneebankk ;
     }
     
+    struct container {
+        uint identifierr ;
+        uint noofconsignee ;
+        string shipment ;
+        address token ;
+        address maerskuu ;
+        address shipperuserrr ;
+        address shipperbankk ;
+        address consigneebankk ;
+    }
+    
+    struct subconsigneeusers {
+        address cuad1 ;
+        string details1 ;
+        address cuad2 ;
+        string details2 ;
+        address cuad3 ;
+        string details3;
+        address cuad4 ;
+        string details4 ;
+        address cuad5 ;
+        string details5 ;
+        
+    }
+    
 /////////////////// MAPPING ////////////////////////
     
+    mapping (address => maerskop) maerskopmapping ;
     mapping (address => branch) public branchmapping ;
+    mapping (address => bool) public branchu ;
     mapping (address => bool) public maersku ;
     mapping (address => bool) public shipperadminu ;
     mapping (address => bool) public consigneeadminu ;
-    mapping (address => shipperuser) sumapping ;
-    mapping (address => bool) shipperuseru ;
-    mapping (address => shipperbank) sbmapping ;
-    mapping (address => bool) shipperbanku ;
-    mapping (address => consigneeuser) cumapping ;
-    mapping (address => bool) consigneeuseru ;
-    mapping (address => consigneebank) cbmapping ;
-    mapping (address => bool) consigneebanku ;
-    mapping (uint => freightterms) freighttermmapping ;
+    mapping (address => shipperuser) public sumapping ;
+    mapping (address => bool) public shipperuseru ;
+    mapping (address => shipperbank) public sbmapping ;
+    mapping (address => bool) public shipperbanku ;
+    mapping (address => consigneeuser)public cumapping ;
+    mapping (address => bool) public consigneeuseru ;
+    mapping (address => consigneebank) public cbmapping ;
+    mapping (address => bool) public consigneebanku ;
+    mapping (uint => freightterms) public freighttermmapping ;
     mapping (address => mapping(uint => bool)) private freighttermtransfer ;
-    mapping (uint => container) containermapping ;
+    mapping (uint => container) public containermapping ;
     mapping (address => mapping(uint => bool)) private containertransfer ;
-    
+    mapping (address => mapping(uint => bool)) private containertransfertoc ;
+    mapping (uint => subconsigneeusers) subconsigneeusermapping ;
     
     
 /////////////////// MODIFIERS////////////////////////
@@ -106,7 +136,17 @@ contract Shipping {
 
 
 
-    function AddMaersk(address _maersk) onlyAdmin public returns (string){
+    function AddMaersk(address _maersk, string _companyname,  string _addressofcompany ,string _country, uint _code ,uint _officeline) onlyAdmin public returns (string){
+        
+        maerskopmapping[_maersk].maersk = _maersk ;
+        maerskopmapping[_maersk].companyname = _companyname ;
+        maerskopmapping[_maersk].addressofcompany = _addressofcompany ;
+        maerskopmapping[_maersk].country = _country ; 
+        maerskopmapping[_maersk].code = _code ;
+        maerskopmapping[_maersk].officeline = _officeline ;
+        
+        
+        
         if(!maersku[_maersk]){
             maersku[_maersk] = true ;
         }
@@ -126,12 +166,17 @@ contract Shipping {
         branchmapping[_branchad].branchname = _branchname ;
         branchmapping[_branchad].govtrefno = _govtrefno ;
         
-        
+        if(!branchu[_branchad]){
+            branchu[_branchad] = true ;
+        }
+        else{
+            branchu[_branchad] = false ;
+        }
     }
     
     function AddShipperAdmin(address _shipperadmin) public returns (string){
         
-        require(maersku[msg.sender]) ;
+        require(branchu[msg.sender]) ;
         
         if(!shipperadminu[_shipperadmin]){
             shipperadminu[_shipperadmin] = true ;
@@ -147,7 +192,7 @@ contract Shipping {
     
     function AddConsigneeAdmin(address _consigneeadmin) public returns (string){
         
-        require(maersku[msg.sender]) ;
+        require(branchu[msg.sender]) ;
         
         if(!consigneeadminu[_consigneeadmin]){
             consigneeadminu[_consigneeadmin] = true ;
@@ -246,42 +291,49 @@ contract Shipping {
     
     }
     
-    function CreateFreightTerms(uint _identifier , string _paycomponents , string _terms , string _orignalpaymentby) public returns (string) {
+    function CreateFreightTerms(address _ShipperUser, address _ConsigneeUser, address _ShipperBank, address _ConsigneeBank ,uint _identifier , string _paycomponents , string _terms , string _orignalpaymentby) public returns (string) {
         
-        require(shipperuseru[msg.sender]) ;
+        require(maersku[msg.sender]) ;
         
         freighttermmapping[_identifier].identifier = _identifier ;
+        freighttermmapping[_identifier].shipperuserr = _ShipperUser ;
+        freighttermmapping[_identifier].consigneeuserr = _ConsigneeUser ;
+        freighttermmapping[_identifier].shipperbankk = _ShipperBank ;
+        freighttermmapping[_identifier].consigneebankk = _ConsigneeBank ;
         freighttermmapping[_identifier].paycomponents = _paycomponents ;
         freighttermmapping[_identifier].terms = _terms ;
         freighttermmapping[_identifier].orignalpaymentby = _orignalpaymentby ;
-        freighttermtransfer[msg.sender][_identifier] = true ;
+        freighttermtransfer[_ShipperUser][_identifier] = true ;
         
         return 'Freight Terms Created' ;
         
         
     }
+
     
-    function TransferFreightTerms(address _toconsigneeu , uint _identifier) public returns (string) {
+    function TransferFreightTerms(uint _identifier) public returns (string) {
         
         require(freighttermtransfer[msg.sender][_identifier]) ;
         
-        freighttermmapping[_identifier].shipperuserr = msg.sender ;
+        address temp ;
+        temp = freighttermmapping[_identifier].consigneeuserr ;
         
         freighttermtransfer[msg.sender][_identifier] = false ;
-        freighttermtransfer[_toconsigneeu][_identifier] = true ;
+        freighttermtransfer[temp][_identifier] = true ;
         
     
         return 'Freight Terms approved and Transferred to Consignee User' ;
     }
     
-    function ApproveFreightTerms(address _toshipper , uint _identifier) public returns (string) {
+    function ApproveFreightTerms( uint _identifier) public returns (string) {
         
         require(freighttermtransfer[msg.sender][_identifier]) ;
         
-        freighttermmapping[_identifier].consigneeuserr = msg.sender ;
+        address temp ;
+        temp = freighttermmapping[_identifier].shipperuserr ;
          
         freighttermtransfer[msg.sender][_identifier] = false ;
-        freighttermtransfer[_toshipper][_identifier] = true ;
+        freighttermtransfer[temp][_identifier] = true ;
         
         return 'Payment Terms accepted by Consignee' ;
          
@@ -311,7 +363,7 @@ contract Shipping {
     
     function TransferContainer1(address _toshipperbank , uint _identifierr) {
         
-        require(shipperbanku[_toshipperbank]) ;
+        
         require(containertransfer[msg.sender][_identifierr]) ;
         
         containermapping[_identifierr].shipperuserrr = msg.sender ;
@@ -333,19 +385,38 @@ contract Shipping {
         
     }
     
-    function TransferContainer3(address _toconsigneeuser , uint _identifierr) {
+    function TransferContainer3to1(address _toconsigneeuser , uint _identifierr) {
         
         require(consigneeuseru[_toconsigneeuser]) ;
         require(containertransfer[msg.sender][_identifierr]) ;
         
         containermapping[_identifierr].consigneebankk = msg.sender ;
+        subconsigneeusermapping[_identifierr].cuad1 = _toconsigneeuser ;
         
         containertransfer[msg.sender][_identifierr] = false ;
-        containertransfer[_toconsigneeuser][_identifierr] = true ;
+        containertransfertoc[_toconsigneeuser][_identifierr] = true ;
         
     }
-        
     
+    function TransferContainer3to2(address _toconsigneeuser1,address _toconsigneeuser2 , uint _identifierr) {
+        
+        require(consigneeuseru[_toconsigneeuser1]) ;
+        require(consigneeuseru[_toconsigneeuser2]) ;    
+        
+        require(containertransfer[msg.sender][_identifierr]) ;
+        containermapping[_identifierr].consigneebankk = msg.sender ;
+        
+        subconsigneeusermapping[_identifierr].cuad1 = _toconsigneeuser1 ;
+        subconsigneeusermapping[_identifierr].cuad2 = _toconsigneeuser2 ;
+        
+        containertransfer[msg.sender][_identifierr] = false ;
+        containertransfertoc[_toconsigneeuser1][_identifierr] = true ;
+        containertransfertoc[_toconsigneeuser2][_identifierr] = true ;
+    }
+        
+    function finish(uint _identifierr) {
+        
+    }
     
         
 
